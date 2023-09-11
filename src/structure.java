@@ -1,4 +1,3 @@
-import javax.swing.text.Position;
 import java.util.*;
 import java.util.Scanner;
 
@@ -6,19 +5,9 @@ import java.util.Scanner;
 
     int n = 4;
     int m = 5;
+    String[][] board = new String[n][m];
 
-     // S = space
-     // W = wall
-     // C = castle
-     // K = king
-    String[][] board = {
-            {" ", " ", "K", " ", " ", " ", " "},
-            {" ", " ", " ", " ", " ", " ", " "},
-            {"U*", " ", "J", " ", "S", " ", "H"},
-            {" ", " ", " ", " ", " ", " ", " "},
-            {" ", " ", "M", " ", " ", " ", " "}
-    };
-
+    Scanner input = new Scanner(System.in);
     public Structure(){
 
     }
@@ -31,9 +20,9 @@ import java.util.Scanner;
 
     void printBoard(String[][] board) {
 
-        for(int i=0; i<5; i++)
+        for(int i=0; i<4; i++)
         {
-            for(int j=0; j<7; j++) {
+            for(int j=0; j<5; j++) {
 
                 System.out.print(board[i][j] + "\t");
             }
@@ -42,83 +31,55 @@ import java.util.Scanner;
     }
 
     ///////////checker function//////////////
-   public List<position> indexes = new ArrayList<>();
-    List <position> checkMoves(String[][] board) {
+    List<String> indexes= new ArrayList<>();
+    void checkMoves(String[][] board) {
         indexes.clear();
         for (int i=0;i<4;i++) {
             for (int j=0; j<5;j++) {
                 if (Objects.equals(board[i][j], "C")){
-                   // System.out.println("\n# The castle place is ["+i+","+j+"]");
+                    System.out.println("\n# The castle place is ["+i+","+j+"]");
                     for (int k=j+1;k<5;k++){
                         if (Objects.equals(board[i][k], "S") || Objects.equals(board[i][k], "K")) {
-                            position p = new position(i, k);
-                            indexes.add(p);
+                            indexes.add("("+i+","+k+")");
                         }
                     }
 
                     for (int l=j-1;l>=0;l--) {
                         if (Objects.equals(board[i][l], "S") || Objects.equals(board[i][l], "K")) {
-                            position p = new position(i, l);
-                           indexes.add(p);
+                            indexes.add(("("+i+","+l+")"));
                         }
                     }
                 }
             }
         }
-       /* System.out.println("\n## Possible movements: ");
-        for (int i=0;i<indexes.size();i++){
-            System.out.println(indexes.get(i).i + ", " + indexes.get(i).j);
-        }*/
-        return indexes;
+        //System.out.println();
+        System.out.println("\n## Possible movements: " + indexes);
     }
 
-     public String[][] deepCopy(String[][] board) {
-         if (board == null) {
-             return null;
-         }
-         String[][] copy = new String[board.length][];
-         for (int i = 0; i < board.length; i++) {
-             copy[i] = board[i].clone();
-         }
-         return copy;
-     }
-
-     List<String[][]> getNextState(String[][] board) {
-        List<String[][]> next = new ArrayList<>();
-        List<position> p = checkMoves(board);
-         for (position n:p) {
-             String[][] s = deepCopy(board);
-           //  next.add(movement(s, n));
-         }
-        /* for (String[][] n:next) {
-             System.out.println(Arrays.deepToString(n));
-         }*/
-         return next;
-     }
-
     ////////////move function/////////////
-    /*String[][]*/ void movement (String[][] board/*, position p*/){
-       /* boolean search = indexes.contains(p);
+    void movement (String[][] board){
+        System.out.print("\nEnter the position you wont it: ");
+        int p1 = input.nextInt();
+        int p2 = input.nextInt();
+        System.out.println("position(" + p1 + "," + p2 + ")");
+
+        boolean search = indexes.contains("("+p1+","+p2+")");
         if (!search) {
             System.out.println("Invalid position!");
         }
-        else {*/
-           // p.i= checkDown(board,p.i, p.j);
-            for (int i=0;i<5;i++) {
-                for (int j=0; j<7;j++) {
-                   int index = board[i][j].indexOf("*");
-                    if (index == -1) {
-                        System.out.println("The player not found");}
-                    else { System.out.println("The player not found"+index);
-                        board[i+1][j]="*";
-                        board[i][j]="";
-                        //board[p.i][p.j]=" *";
-                    //}
-                }
-            } }
-           // printBoard(board);
+        else {
+            p1= checkDown(board,p1,p2);
 
-       // return board;
+            for (int i=0;i<4;i++) {
+                for (int j=0; j<5;j++) {
+                    if (Objects.equals(board[i][j], "C")) {
+                        board[i][j]="S";
+                        board[p1][p2]="C";
+                    }
+                }
+            }
+            printBoard(board);
+        }
     }
 
     //check if there is a wall or space under the castle, because it can not stand on space
@@ -132,34 +93,6 @@ import java.util.Scanner;
         return 3;
     }
 
-     boolean visit(ArrayList<String[][]> visit, String[][] s) {
-         boolean flag;
-         for (String[][] cell : visit) {
-             flag = equals2D(cell, s);
-             if (flag) return false;
-         }
-         return true;
-     }
-
-     public static boolean equals1D(String[] a1, String[] a2) {
-         if (a1 == null ||  a2 == null || a1.length != a2.length) return false;
-
-         for (int i = 0; i < a1.length; i++)
-             if (!Objects.equals(a1[i], a2[i])) return false;
-         return true;
-     }
-
-     public static boolean equals2D(String[][] a1, String[][] a2) {
-         // if (a1 == a2) return true;
-
-         if (a1 == null || a2 == null || a1.length != a2.length) return false;
-
-         for (int i = 0; i < a1.length; i++)
-             if (!equals1D(a1[i], a2[i])) return false;
-
-         return true;
-     }
-
     //the final state, when the king will be died, the player will win
     public boolean isFinal(String[][] board){
         for (int i = 0; i < 4; i++) {
@@ -172,8 +105,4 @@ import java.util.Scanner;
         System.out.println("\n Done..! the king died * _ *");
         return true;
     }
-
-
 }
-
-
